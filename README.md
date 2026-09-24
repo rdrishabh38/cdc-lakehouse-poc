@@ -98,11 +98,48 @@ Bootstrapping the entire architecture takes exactly one command. This will downl
 
 ```bash
 just up
+
+# shows below output on terminal
+
+docker compose up -d
+[+] Running 13/13
+ ✔ Network cdc-lakehouse-poc_default  Created
+ ✔ Container postgres                 Healthy
+ ✔ Container zookeeper                Started
+ ✔ Container db-migration             Started
+ ✔ Container kafka                    Started
+ ✔ Container schema-registry          Started
+ ✔ Container kafka-exporter           Started
+ ✔ Container kafka-connect            Healthy
+ ✔ Container spark-app                Started
+ ✔ Container prometheus               Started
+ ✔ Container connector-setup          Exited
+ ✔ Container data-generator           Started
+ ✔ Container grafana                  Started
 ```
 
 Wait ~30 seconds for all containers to reach a `Healthy` state. You can monitor the startup with:
 ```bash
 just status
+
+#shows below output on terminal
+
+
+just status
+docker ps -a
+CONTAINER ID   IMAGE                                   COMMAND                  CREATED              STATUS                          PORTS                                                                                                NAMES
+9e9e3986e7de   grafana/grafana:10.1.0                  "/run.sh"                About a minute ago   Up About a minute               0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp                                                          grafana
+683ba2c7ae34   python:3.10-slim                        "bash -c 'pip instal…"   About a minute ago   Up About a minute                                                                                                                    data-generator
+34b1d4465aaf   prom/prometheus:v2.45.0                 "/bin/prometheus --c…"   About a minute ago   Up About a minute               0.0.0.0:9090->9090/tcp, [::]:9090->9090/tcp                                                          prometheus
+544e311f7f4b   curlimages/curl:8.4.0                   "/entrypoint.sh sh -…"   About a minute ago   Exited (0) About a minute ago                                                                                                        connector-setup
+83fa4eff2a4c   cdc-lakehouse-poc-kafka-connect         "/etc/confluent/dock…"   About a minute ago   Up About a minute (healthy)     0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp, 0.0.0.0:8083->8083/tcp, [::]:8083->8083/tcp, 9092/tcp   kafka-connect
+4e537d522d41   apache/spark:3.5.0                      "/opt/entrypoint.sh …"   About a minute ago   Up About a minute                                                                                                                    spark-app
+63c4e5d0b434   confluentinc/cp-schema-registry:7.5.0   "/etc/confluent/dock…"   About a minute ago   Up About a minute               0.0.0.0:8081->8081/tcp, [::]:8081->8081/tcp                                                          schema-registry
+a59b1824ea1c   danielqsj/kafka-exporter:v1.7.0         "/bin/kafka_exporter…"   About a minute ago   Up About a minute               0.0.0.0:9308->9308/tcp, [::]:9308->9308/tcp                                                          kafka-exporter
+f7d771c2574c   confluentinc/cp-kafka:7.5.0             "/etc/confluent/dock…"   About a minute ago   Up About a minute               0.0.0.0:9092->9092/tcp, [::]:9092->9092/tcp                                                          kafka
+6b0c2ba311a5   python:3.10-slim                        "bash -c 'pip instal…"   About a minute ago   Up About a minute                                                                                                                    db-migration
+d95766b530fe   confluentinc/cp-zookeeper:7.5.0         "/etc/confluent/dock…"   About a minute ago   Up About a minute               2888/tcp, 0.0.0.0:2181->2181/tcp, [::]:2181->2181/tcp, 3888/tcp                                      zookeeper
+a9722c7b304a   postgres:15-alpine                      "docker-entrypoint.s…"   About a minute ago   Up About a minute (healthy)     0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp                                                          postgres
 ```
 
 ### 2. Monitor Real-Time Traffic
@@ -113,7 +150,48 @@ You can tail the logs to see the pipeline in action:
 # Watch the fake data being generated
 docker logs -f data-generator
 
+# shows below logs
+
+# truncated logs
+
+Collecting urllib3<3,>=1.21.1
+  Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 135.7/135.7 kB 5.2 MB/s eta 0:00:00
+Collecting six>=1.5
+  Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Collecting MarkupSafe>=2.0
+  Downloading markupsafe-3.0.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (20 kB)
+Building wheels for collected packages: pyspark
+  Building wheel for pyspark (setup.py): started
+  Building wheel for pyspark (setup.py): finished with status 'done'
+  Created wheel for pyspark: filename=pyspark-3.5.0-py2.py3-none-any.whl size=317425403 sha256=73a9db71495baa8061774ecb1297eefcb9de3621342480ccc110e1e7809408b8
+  Stored in directory: /root/.cache/pip/wheels/41/4e/10/c2cf2467f71c678cfc8a6b9ac9241e5e44a01940da8fbb17fc
+Successfully built pyspark
+Installing collected packages: py4j, urllib3, typing-extensions, six, pyspark, psycopg2-binary, MarkupSafe, idna, greenlet, charset-normalizer, certifi, SQLAlchemy, requests, python-dateutil, Mako, Faker, alembic
+Successfully installed Faker-19.6.0 Mako-1.4.3 MarkupSafe-3.0.3 SQLAlchemy-2.0.21 alembic-1.12.0 certifi-2026.7.22 charset-normalizer-3.5.1 greenlet-3.5.6 idna-3.20 psycopg2-binary-2.9.9 py4j-0.10.9.7 pyspark-3.5.0 python-dateutil-2.9.0.post0 requests-2.31.0 six-1.17.0 typing-extensions-4.16.0 urllib3-2.8.0
+WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+
+[notice] A new release of pip is available: 23.0.1 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+Waiting a few seconds before seeding to ensure connector is active...
+Inserting initial seed row to trigger schema registration...
+Waiting 15 seconds for Debezium to register schema and Spark to fetch it...
+Starting continuous CDC stream...
+INSERT: Teresa Dalton (michealcarroll@example.com)
+INSERT: Michael Bryant (clarson@example.com)
+INSERT: Thomas Davis (timothybeck@example.org)
+INSERT: Caitlin Coleman (morrisdaniel@example.net)
+UPDATE [ID 1]: Initial Seed -> new_email=robertnichols@example.com
+INSERT: Anthony Guerrero (dickersonnicole@example.net)
+UPDATE [ID 2]: Teresa Dalton -> new_email=lawrencestanley@example.com
+INSERT: Bryan Li (rodneylong@example.org)
+
+# truncated logs 
+
+```
+
 # Watch Spark processing micro-batches and writing to Iceberg
+```
 docker logs -f spark-app
 ```
 
