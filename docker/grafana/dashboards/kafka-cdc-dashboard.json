@@ -1,0 +1,46 @@
+{
+  "title": "CDC Lakehouse Metrics",
+  "tags": ["cdc", "kafka", "debezium"],
+  "timezone": "browser",
+  "schemaVersion": 16,
+  "version": 0,
+  "refresh": "5s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Total Messages in CDC Topic",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(kafka_topic_partition_current_offset{topic=\"dbserver1.inventory.customers\"})",
+          "legendFormat": "Messages",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Debezium Replication Lag (ms)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "debezium_postgres_connector_metrics_millisecondsbehindsource",
+          "legendFormat": "Lag (ms)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Debezium Total Events Seen",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "debezium_postgres_connector_metrics_totalnumberofeventsseen",
+          "legendFormat": "Total Events",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

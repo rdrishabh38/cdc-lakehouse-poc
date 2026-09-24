@@ -1,0 +1,11 @@
+lowercaseOutputName: true
+rules:
+# Debezium Connector metrics
+- pattern: "debezium.([^:]+)<type=connector-metrics, context=([^,]+), server=([^,]+), plugin=([^>]+)><>([^:]+)"
+  name: "debezium_metrics_$5"
+  labels:
+    plugin: "$4"
+    server: "$3"
+    context: "$2"
+# Catch all others
+- pattern: ".*"
