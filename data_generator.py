@@ -54,6 +54,7 @@ def generate_data():
                         
                 conn.commit()
             except Exception as e:
+                conn.rollback()
                 print(f"Error during {op}: {e}")
             
             # Simulate real-time traffic

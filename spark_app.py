@@ -62,8 +62,8 @@ def process_microbatch(df, epoch_id):
             after.first_name,
             after.last_name,
             after.email,
-            after.insert_timestamp,
-            after.update_timestamp,
+            timestamp_micros(after.insert_timestamp) as insert_timestamp,
+            timestamp_micros(after.update_timestamp) as update_timestamp,
             op
         FROM cdc_microbatch
     ) s
