@@ -41,6 +41,35 @@ The pipeline orchestrates 9 Docker containers to simulate a full enterprise stre
 | **Telemetry** | Prometheus & Grafana | Real-time monitoring of replication lag and throughput. |
 | **Metrics Exporter**| Kafka Exporter | Native metrics scraping for Kafka broker topic offsets. |
 
+### Container Architecture
+
+```mermaid
+flowchart TD
+    subgraph Source [Data Source Layer]
+        Gen[Data-Generator<br/>Python / Faker] -->|SQL CUD Operations| DB[(PostgreSQL 15)]
+        Mig[DB-Migration<br/>Alembic] -.->|Applies DDL| DB
+    end
+
+    subgraph Transport [CDC Transport Layer]
+        DB -->|Reads WAL Logs| Connect[Kafka-Connect<br/>Debezium]
+        Connect -->|Publishes Avro| Kafka[Apache Kafka]
+        Connect <-->|Registers Schema| SR[Schema Registry]
+    end
+
+    subgraph Lakehouse [Stream Processing & Sink]
+        Kafka -->|Consumes Stream| Spark[Spark-App<br/>PySpark]
+        SR -.->|Fetches Schema| Spark
+        Spark -->|MERGE INTO| Iceberg[(Apache Iceberg)]
+    end
+
+    subgraph Observability [Telemetry Stack]
+        Connect -.->|JMX Metrics| Prom[Prometheus]
+        Kafka -.->|Topic Offsets| KExp[Kafka-Exporter]
+        KExp -.-> Prom
+        Prom --> Grafana[Grafana<br/>Dashboards]
+    end
+```
+
 ### Data Flow Diagram
 
 ```mermaid
