@@ -40,6 +40,7 @@ The pipeline orchestrates 9 Docker containers to simulate a full enterprise stre
 | **Traffic Gen** | Python / Faker | Continuous script generating random INSERTs, UPDATEs, and DELETEs. |
 | **Telemetry** | Prometheus & Grafana | Real-time monitoring of replication lag and throughput. |
 | **Metrics Exporter**| Kafka Exporter | Native metrics scraping for Kafka broker topic offsets. |
+| **Kafka GUI** | Provectus Kafka-UI | Web interface for managing Kafka topics and Schema Registry versions. |
 
 ### Container Architecture
 
@@ -62,11 +63,13 @@ flowchart TD
         Spark -->|MERGE INTO| Iceberg[(Apache Iceberg)]
     end
 
-    subgraph Observability [Telemetry Stack]
+    subgraph Observability [Telemetry Stack & UIs]
         Connect -.->|JMX Metrics| Prom[Prometheus]
         Kafka -.->|Topic Offsets| KExp[Kafka-Exporter]
         KExp -.-> Prom
         Prom --> Grafana[Grafana<br/>Dashboards]
+        Kafka -.->|Browse Topics| KUI[Kafka-UI]
+        SR -.->|View Schemas| KUI
     end
 ```
 
@@ -229,6 +232,12 @@ The stack auto-provisions a Grafana dashboard utilizing JMX metrics from Debeziu
 * **URL:** [http://localhost:3000](http://localhost:3000)
 * **Credentials:** `admin` / `admin`
 * Navigate to **Dashboards** -> **CDC Lakehouse Metrics** to monitor Replication Lag (ms) and Total Events Processed.
+
+### 4. Web Interfaces
+In addition to Grafana, you can access the following UIs to inspect the pipeline:
+* **Kafka UI:** [http://localhost:8082](http://localhost:8082) - Browse Kafka topics, view live Avro messages, and inspect the Confluent Schema Registry versions.
+* **Spark Web UI:** [http://localhost:4040](http://localhost:4040) - View the physical DAG, query execution plans, and micro-batch streaming statistics for the `MERGE INTO` operation.
+* **Prometheus:** [http://localhost:9090](http://localhost:9090) - Query raw JMX and system metrics.
 
 ## Validating the Lakehouse (Interactive CLI)
 
